@@ -1,0 +1,20 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Chạy 3h sáng UTC vào thứ Hai và thứ Năm hàng tuần
+    # (Supabase free tier tạm dừng sau 7 ngày không hoạt động,
+    # chạy 2 lần/tuần để có dự phòng nếu 1 lần bị lỗi/trễ)
+    - cron: '0 3 * * 1,4'
+  workflow_dispatch: # cho phép bấm "Run workflow" để test thủ công
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          curl -s -o /dev/null -w "HTTP status: %{http_code}\n" \
+            "https://qnfjowqnzakkemypsntk.supabase.co/rest/v1/game_state?select=id&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
